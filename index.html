@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>ASOTATUR · Tarifario Oficial</title>
   <style>
     :root {
@@ -763,9 +766,9 @@
     </footer>
   </div>
 
-  <script src="tarifas.js"></script>
   <script>
-    // Los destinos y tarifas se cargan desde el archivo externo: tarifas.js
+    // Los destinos y tarifas se cargan dinámicamente desde tarifas.js sin caché
+    let INDEXED_DESTINATIONS = [];
 
     // =========================================================================
     // NORMALIZACIÓN DE BÚSQUEDA
@@ -781,13 +784,6 @@
         .replace(/\s+/g, " ")
         .trim();
     }
-
-    const INDEXED_DESTINATIONS = DESTINATIONS.map((d, idx) => ({
-      ...d,
-      _id: idx,
-      _normName: normalizeText(d.name),
-      _normAll: normalizeText(`${d.name} ${d.zone} ${d.ref || ""}`)
-    }));
 
     function formatMoney(amount) {
       return Number.isInteger(amount) ? `US$ ${amount}` : `US$ ${amount.toFixed(2)}`;
@@ -963,7 +959,7 @@
     }
 
     function initZones() {
-      const zones = [...new Set(INDEXED_DESTINATIONS.map(d => d.zone))];
+      const zones = [...new Set(INDEXED_DESTINATIONS.filter(d => !d.disabled).map(d => d.zone))];
       zones.forEach(z => {
         const opt = document.createElement("option");
         opt.value = z;
@@ -1213,7 +1209,7 @@
       const departurePoint = getCurrentDeparturePoint();
 
       const matches = INDEXED_DESTINATIONS
-        .filter(d => tokens.every(tok => d._normAll.includes(tok)))
+        .filter(d => !d.disabled && tokens.every(tok => d._normAll.includes(tok)))
         .sort((a, b) => {
           const aStarts = a._normName.startsWith(normQuery) ? 0 : 1;
           const bStarts = b._normName.startsWith(normQuery) ? 0 : 1;
@@ -1280,7 +1276,7 @@
         sectorSelect.disabled = true;
         return;
       }
-      INDEXED_DESTINATIONS.filter(d => d.zone === selectedZone).forEach(dest => {
+      INDEXED_DESTINATIONS.filter(d => !d.disabled && d.zone === selectedZone).forEach(dest => {
         const opt = document.createElement("option");
         opt.value = String(dest._id);
         opt.textContent = dest.name;
@@ -1372,7 +1368,25 @@
       applyTheme(nextTheme);
     });
 
-    initZones();
+    const tarifasScript = document.createElement("script");
+    tarifasScript.src = `tarifas.js?v=${Date.now()}`;
+    tarifasScript.onload = () => {
+      if (typeof DESTINATIONS === "undefined" || !Array.isArray(DESTINATIONS)) {
+        alert("Error: tarifas.js no contiene el listado válido de destinos.");
+        return;
+      }
+      INDEXED_DESTINATIONS = DESTINATIONS.map((d, idx) => ({
+        ...d,
+        _id: idx,
+        _normName: normalizeText(d.name),
+        _normAll: normalizeText(`${d.name} ${d.zone} ${d.ref || ""}`)
+      }));
+      initZones();
+    };
+    tarifasScript.onerror = () => {
+      alert("Error al cargar tarifas.js. Verifica la conexión o el archivo en el servidor.");
+    };
+    document.body.appendChild(tarifasScript);
   </script>
 </body>
 </html>
