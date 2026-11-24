@@ -857,7 +857,7 @@
       return str
         .toString()
         .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "")
+        .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
         .replace(/[^a-z0-9\s]/g, " ")
         .replace(/\s+/g, " ")
@@ -1132,8 +1132,7 @@
       if (state.paymentMethod === "card") {
         lines.push(``, `Nota: Pago con tarjeta conlleva un cargo adicional de entre 4 % y 7 % según la plataforma/POS (CardNET, AZUL, Billet, MIO, etc.).`);
       }
-      return lines.join("
-");
+      return lines.join("\n");
     }
 
     function render() {
