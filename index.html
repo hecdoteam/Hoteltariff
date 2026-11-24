@@ -6,10 +6,68 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <meta name="app-version" content="2026.11.23.2" />
   <title>ASOTATUR · Tarifario Oficial</title>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="icon" type="image/png" href="apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-title" content="ASOTATUR" />
+
+  <script>
+    // =========================================================================
+    // CONTROL ANTI-CACHÉ AUTOMÁTICO PARA INDEX.HTML (SAFARI / IOS / GITHUB / NETLIFY)
+    // =========================================================================
+    (function checkFreshHtml() {
+      if (window.location.protocol === "file:") return;
+
+      async function verifyLatestVersion() {
+        try {
+          const cleanPath = window.location.pathname || "/";
+          const res = await fetch(`${cleanPath}?nocache=${Date.now()}`, {
+            method: "GET",
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache, no-store, must-revalidate",
+              "Pragma": "no-cache"
+            }
+          });
+          if (!res.ok) return;
+
+          const freshText = await res.text();
+          const match = freshText.match(/<meta\s+name=["']app-version["']\s+content=["']([^"']+)["']/i);
+          const localMeta = document.querySelector('meta[name="app-version"]');
+          const localVersion = localMeta ? localMeta.getAttribute("content") : "";
+          const serverVersion = match ? match[1] : "";
+
+          if (serverVersion && localVersion && serverVersion !== localVersion) {
+            const reloadGuardKey = `asotatur_reloaded_${serverVersion}`;
+            if (!sessionStorage.getItem(reloadGuardKey)) {
+              sessionStorage.setItem(reloadGuardKey, "1");
+              const url = new URL(window.location.href);
+              url.searchParams.set("v", serverVersion);
+              window.location.replace(url.toString());
+            }
+          }
+        } catch (err) {
+          // Si no hay conexión, continúa operando con la versión local sin interrumpir
+        }
+      }
+
+      verifyLatestVersion();
+
+      // Evita que Safari (iOS bfcache) muestre una copia congelada al volver a la app
+      window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+          verifyLatestVersion();
+        }
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          verifyLatestVersion();
+        }
+      });
+    })();
+  </script>
 
   <style>
     :root {
@@ -116,7 +174,7 @@
       border-radius: 10px;
       padding: 9px 12px;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .origin-info {
@@ -163,6 +221,48 @@
       color: var(--muted);
     }
 
+    /* Barra compacta de tasa USD -> RD$ siempre visible */
+    .rate-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 12px;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .rate-bar-label {
+      font-size: 0.80rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .rate-input-wrap {
+      position: relative;
+      width: 145px;
+      flex-shrink: 0;
+    }
+
+    .rate-input-wrap input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 30px 6px 10px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-align: right;
+      outline: none;
+    }
+
+    .rate-input-wrap input:focus {
+      border-color: var(--green);
+    }
+
     /* Buscadores e inputs */
     .field-group {
       position: relative;
@@ -174,7 +274,6 @@
     }
 
     input[type="text"],
-    input[type="number"],
     select {
       width: 100%;
       background: var(--card-inner);
@@ -197,16 +296,16 @@
 
     .clear-search {
       position: absolute;
-      right: 10px;
+      right: 8px;
       top: 50%;
       transform: translateY(-50%);
       background: var(--btn-surface);
       border: none;
       color: var(--muted);
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       cursor: pointer;
     }
 
@@ -259,6 +358,13 @@
       color: var(--green);
       flex-shrink: 0;
       text-align: right;
+    }
+
+    .suggestion-dop-mini {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
     .link-btn {
@@ -498,51 +604,6 @@
       margin-top: 3px;
     }
 
-    /* Calculadora a pesos dominicanos */
-    .exchange-section {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    .exchange-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .exchange-label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-    }
-
-    .exchange-input-wrap {
-      position: relative;
-      width: 155px;
-      flex-shrink: 0;
-    }
-
-    .exchange-input-wrap input {
-      padding: 8px 32px 8px 10px;
-      font-size: 0.90rem;
-      font-weight: 600;
-      text-align: right;
-    }
-
-    .exchange-input-wrap input::-webkit-outer-spin-button,
-    .exchange-input-wrap input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    .exchange-input-wrap input[type="number"] {
-      -moz-appearance: textfield;
-    }
-
     /* Vista previa de texto y botón copiar */
     .copy-preview {
       margin-top: 12px;
@@ -699,6 +760,21 @@
         </div>
       </div>
 
+      <!-- Tasa USD -> RD$ siempre visible y persistente -->
+      <div class="rate-bar">
+        <label class="rate-bar-label" for="exchangeRateInput">Tasa RD$ (1 US$):</label>
+        <div class="rate-input-wrap">
+          <input
+            type="text"
+            inputmode="decimal"
+            id="exchangeRateInput"
+            placeholder="Ej. 60.50"
+            autocomplete="off"
+          />
+          <button type="button" class="clear-search hidden" id="clearRateBtn" aria-label="Limpiar tasa">✕</button>
+        </div>
+      </div>
+
       <!-- Panel desplegable para cambiar salida -->
       <div class="hidden" id="originSelectorBox" style="margin-bottom: 12px;">
         <div class="search-wrap">
@@ -805,25 +881,6 @@
         </div>
       </div>
 
-      <!-- Calculadora en tiempo real a Pesos Dominicanos -->
-      <div class="exchange-section">
-        <div class="exchange-row">
-          <label class="exchange-label" for="exchangeRateInput">Convertir a RD$ (Tasa)</label>
-          <div class="exchange-input-wrap">
-            <input
-              type="number"
-              inputmode="decimal"
-              id="exchangeRateInput"
-              step="0.01"
-              min="0"
-              placeholder="Ej. 60.50"
-              autocomplete="off"
-            />
-            <button type="button" class="clear-search hidden" id="clearRateBtn" aria-label="Limpiar tasa">✕</button>
-          </div>
-        </div>
-      </div>
-
       <div class="payment-section">
         <span class="payment-label">Método de pago</span>
         <div class="payment-grid" id="paymentGrid">
@@ -850,7 +907,7 @@
     let INDEXED_DESTINATIONS = [];
 
     // =========================================================================
-    // NORMALIZACIÓN DE BÚSQUEDA
+    // NORMALIZACIÓN DE BÚSQUEDA Y FORMATEO
     // =========================================================================
     function normalizeText(str) {
       if (!str) return "";
@@ -870,19 +927,49 @@
 
     function formatDOP(usdAmount, rate) {
       const dop = Math.round(usdAmount * rate);
-      return `RD$ ${dop.toLocaleString("es-DO")}`;
+      return `RD$ ${dop.toLocaleString("en-US")}`;
+    }
+
+    function parseExchangeRate(rawValue) {
+      if (!rawValue) return null;
+      const cleaned = rawValue.toString().trim().replace(",", ".");
+      const parsed = parseFloat(cleaned);
+      return !isNaN(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    async function copyToClipboard(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (e) {}
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand("copy");
+      } catch (e) {}
+      document.body.removeChild(ta);
+      return true;
     }
 
     // =========================================================================
     // ESTADO DE LA APLICACIÓN
     // =========================================================================
+    const savedRateRaw = localStorage.getItem("asotatur_exchange_rate") || "";
+
     let state = {
       origin: "Santo Domingo / Hotel",
       originObj: null,
       stops: [],
       roundTrip: false,
       paymentMethod: "cash",
-      exchangeRate: null
+      exchangeRate: parseExchangeRate(savedRateRaw)
     };
 
     // Referencias DOM
@@ -894,6 +981,9 @@
     const clearOriginSearchBtn = document.getElementById("clearOriginSearchBtn");
     const originSuggestionsList = document.getElementById("originSuggestionsList");
     const originSelect = document.getElementById("originSelect");
+
+    const exchangeRateInput = document.getElementById("exchangeRateInput");
+    const clearRateBtn = document.getElementById("clearRateBtn");
 
     const searchInput = document.getElementById("searchInput");
     const clearSearchBtn = document.getElementById("clearSearchBtn");
@@ -919,13 +1009,17 @@
     const dopNormal = document.getElementById("dopNormal");
     const dopMinivan = document.getElementById("dopMinivan");
     const dopLuxury = document.getElementById("dopLuxury");
-    const exchangeRateInput = document.getElementById("exchangeRateInput");
-    const clearRateBtn = document.getElementById("clearRateBtn");
     const themeToggleBtn = document.getElementById("themeToggleBtn");
     const paymentGrid = document.getElementById("paymentGrid");
     const cardWarningBox = document.getElementById("cardWarningBox");
     const copyPreviewText = document.getElementById("copyPreviewText");
     const copyQuoteBtn = document.getElementById("copyQuoteBtn");
+
+    // Restaurar tasa guardada al abrir la página
+    if (savedRateRaw) {
+      exchangeRateInput.value = savedRateRaw;
+      clearRateBtn.classList.remove("hidden");
+    }
 
     // =========================================================================
     // MOTOR DE CÁLCULO SIMÉTRICO Y ESTIMACIÓN POR DISTANCIA
@@ -1307,7 +1401,7 @@
     });
 
     // Eventos de Búsqueda Rápida de Destino
-    searchInput.addEventListener("input", () => {
+    function renderDestinationSuggestions() {
       const raw = searchInput.value;
       clearSearchBtn.classList.toggle("hidden", raw.length === 0);
 
@@ -1348,20 +1442,27 @@
         const pM = estimateLegPrice(departurePoint, dest, "Minivan");
         const pL = estimateLegPrice(departurePoint, dest, "Luxury");
 
+        const dopMiniHtml = state.exchangeRate
+          ? `<div class="suggestion-dop-mini">Normal: ${formatDOP(pN, state.exchangeRate)}</div>`
+          : "";
+
         item.innerHTML = `
           <div>
             <div class="suggestion-name">${dest.name}</div>
             <div class="suggestion-zone">${subText}</div>
           </div>
           <div class="suggestion-prices-mini">
-            $${pN} · $${pM} · $${pL}
+            <div>$${pN} · $${pM} · $${pL}</div>
+            ${dopMiniHtml}
           </div>
         `;
         item.addEventListener("click", () => addStop(dest));
         suggestionsList.appendChild(item);
       });
       suggestionsList.classList.remove("hidden");
-    });
+    }
+
+    searchInput.addEventListener("input", renderDestinationSuggestions);
 
     clearSearchBtn.addEventListener("click", () => {
       searchInput.value = "";
@@ -1429,12 +1530,19 @@
       searchInput.focus();
     });
 
-    // Evento de tasa de cambio en tiempo real
+    // Evento de tasa de cambio en tiempo real con guardado en localStorage
     exchangeRateInput.addEventListener("input", () => {
       const raw = exchangeRateInput.value.trim();
       clearRateBtn.classList.toggle("hidden", raw.length === 0);
-      const parsed = parseFloat(raw);
-      state.exchangeRate = !isNaN(parsed) && parsed > 0 ? parsed : null;
+      state.exchangeRate = parseExchangeRate(raw);
+      if (raw) {
+        localStorage.setItem("asotatur_exchange_rate", raw);
+      } else {
+        localStorage.removeItem("asotatur_exchange_rate");
+      }
+      if (!suggestionsList.classList.contains("hidden")) {
+        renderDestinationSuggestions();
+      }
       render();
     });
 
@@ -1442,13 +1550,17 @@
       exchangeRateInput.value = "";
       clearRateBtn.classList.add("hidden");
       state.exchangeRate = null;
+      localStorage.removeItem("asotatur_exchange_rate");
+      if (!suggestionsList.classList.contains("hidden")) {
+        renderDestinationSuggestions();
+      }
       render();
       exchangeRateInput.focus();
     });
 
     // Copiar las 3 tarifas (botón principal)
     copyQuoteBtn.addEventListener("click", async () => {
-      await navigator.clipboard.writeText(copyPreviewText.textContent);
+      await copyToClipboard(copyPreviewText.textContent);
       const orig = copyQuoteBtn.textContent;
       copyQuoteBtn.textContent = "¡Tarifas copiadas!";
       setTimeout(() => (copyQuoteBtn.textContent = orig), 1800);
@@ -1466,7 +1578,7 @@
         const cardNote = state.paymentMethod === "card" ? " (+4 % a 7 % por pago con tarjeta)" : "";
         const singleText = `${tier} (${modeLabel}): ${formatMoney(val)}${dopPart}${cardNote} · ${routePoints.join(" → ")}`;
 
-        await navigator.clipboard.writeText(singleText);
+        await copyToClipboard(singleText);
         const subEl = document.getElementById(`sub${tier}`);
         subEl.textContent = "¡Copiado!";
         setTimeout(() => (subEl.textContent = "Tocar para copiar"), 1500);
