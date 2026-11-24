@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="app-version" content="2026.11.23.2" />
+  <meta name="app-version" content="2026.11.24.3" />
   <title>ASOTATUR · Tarifario Oficial</title>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="icon" type="image/png" href="apple-touch-icon.png" />
@@ -14,7 +14,7 @@
 
   <script>
     // =========================================================================
-    // CONTROL ANTI-CACHÉ AUTOMÁTICO PARA INDEX.HTML (SAFARI / IOS / GITHUB / NETLIFY)
+    // CONTROL ANTI-CACHÉ AUTOMÁTICO PARA INDEX.HTML (SAFARI / IOS / GITHUB PAGES)
     // =========================================================================
     (function checkFreshHtml() {
       if (window.location.protocol === "file:") return;
@@ -48,13 +48,12 @@
             }
           }
         } catch (err) {
-          // Si no hay conexión, continúa operando con la versión local sin interrumpir
+          // Si no hay conexión, continúa operando con la versión local y respaldo offline
         }
       }
 
       verifyLatestVersion();
 
-      // Evita que Safari (iOS bfcache) muestre una copia congelada al volver a la app
       window.addEventListener("pageshow", (event) => {
         if (event.persisted) {
           verifyLatestVersion();
@@ -88,6 +87,9 @@
       --danger-bg: rgba(239, 68, 68, 0.12);
       --danger-border: rgba(239, 68, 68, 0.45);
       --danger-text: #fca5a5;
+      --warn-bg: rgba(245, 158, 11, 0.12);
+      --warn-border: rgba(245, 158, 11, 0.45);
+      --warn-text: #fcd34d;
       --radius: 14px;
     }
 
@@ -109,6 +111,9 @@
       --danger-bg: rgba(220, 38, 38, 0.08);
       --danger-border: rgba(220, 38, 38, 0.40);
       --danger-text: #b91c1c;
+      --warn-bg: rgba(217, 119, 6, 0.10);
+      --warn-border: rgba(217, 119, 6, 0.40);
+      --warn-text: #92400e;
     }
 
     * {
@@ -153,6 +158,17 @@
       color: var(--muted);
     }
 
+    .offline-banner {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -174,7 +190,7 @@
       border-radius: 10px;
       padding: 9px 12px;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .origin-info {
@@ -221,46 +237,28 @@
       color: var(--muted);
     }
 
-    /* Barra compacta de tasa USD -> RD$ siempre visible */
-    .rate-bar {
+    /* Atajos rápidos de salida */
+    .quick-origins {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .quick-chip {
       background: var(--card-inner);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 7px 12px;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .rate-bar-label {
-      font-size: 0.80rem;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .rate-input-wrap {
-      position: relative;
-      width: 145px;
-      flex-shrink: 0;
-    }
-
-    .rate-input-wrap input {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
       color: var(--text);
-      padding: 6px 30px 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 10px;
       border-radius: 8px;
-      font-size: 0.88rem;
-      font-weight: 700;
-      text-align: right;
-      outline: none;
+      cursor: pointer;
     }
 
-    .rate-input-wrap input:focus {
+    .quick-chip:hover {
       border-color: var(--green);
+      color: var(--green);
     }
 
     /* Buscadores e inputs */
@@ -296,16 +294,16 @@
 
     .clear-search {
       position: absolute;
-      right: 8px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
       background: var(--btn-surface);
       border: none;
       color: var(--muted);
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       cursor: pointer;
     }
 
@@ -367,13 +365,21 @@
       margin-top: 2px;
     }
 
+    .search-links-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
     .link-btn {
       background: none;
       border: none;
       color: var(--muted);
       font-size: 0.78rem;
       cursor: pointer;
-      padding: 8px 0 0;
+      padding: 0;
       display: inline-flex;
       align-items: center;
       gap: 4px;
@@ -381,6 +387,72 @@
 
     .link-btn:hover {
       color: var(--green);
+    }
+
+    /* Historial reciente */
+    .history-panel {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .history-header span {
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .history-item {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .history-item:hover {
+      border-color: var(--green);
+    }
+
+    .history-route {
+      font-size: 0.80rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-meta {
+      font-size: 0.70rem;
+      color: var(--muted);
+    }
+
+    .history-price {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--green);
+      flex-shrink: 0;
     }
 
     /* Paradas y modalidad */
@@ -517,6 +589,14 @@
       margin-bottom: 12px;
     }
 
+    .route-banner-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
     .route-mode-pill {
       display: inline-block;
       font-size: 0.72rem;
@@ -524,7 +604,23 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--green);
-      margin-bottom: 3px;
+    }
+
+    .edit-prices-btn {
+      background: var(--btn-surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .edit-prices-btn.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-bg);
     }
 
     .route-chain {
@@ -567,6 +663,10 @@
       border-color: var(--gold);
     }
 
+    .price-box.edited {
+      border-style: dashed;
+    }
+
     .price-tier {
       font-size: 0.78rem;
       font-weight: 700;
@@ -604,9 +704,199 @@
       margin-top: 3px;
     }
 
-    /* Vista previa de texto y botón copiar */
-    .copy-preview {
+    /* Panel de edición manual de precios */
+    .manual-edit-box {
+      margin-top: 10px;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .manual-edit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .manual-edit-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .manual-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .manual-field label {
+      font-size: 0.70rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .manual-field input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 8px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+    }
+
+    .manual-field input:focus {
+      border-color: var(--gold);
+    }
+
+    /* Sección de Tasa USD -> RD$ debajo de los precios */
+    .exchange-section {
       margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .exchange-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .exchange-label-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .exchange-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .exchange-meta {
+      font-size: 0.70rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .exchange-input-wrap {
+      position: relative;
+      width: 150px;
+      flex-shrink: 0;
+    }
+
+    .exchange-input-wrap input {
+      width: 100%;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px 8px 34px;
+      border-radius: 9px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-align: right;
+      outline: none;
+    }
+
+    .exchange-input-wrap input:focus {
+      border-color: var(--green);
+    }
+
+    .clear-rate-left {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--btn-surface);
+      border: none;
+      color: var(--muted);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 0.72rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clear-rate-left:hover {
+      color: var(--danger);
+    }
+
+    .rate-stale-warning {
+      margin-top: 8px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    /* Vista previa de texto, selector ES/EN y botón copiar */
+    .copy-toolbar {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .copy-toolbar-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .lang-btn.active {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .copy-preview {
+      margin-top: 8px;
       background: var(--card-inner);
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -746,6 +1036,11 @@
       </div>
     </header>
 
+    <!-- Aviso de modo sin conexión usando caché local -->
+    <div class="offline-banner hidden" id="offlineBanner">
+      📡 Modo sin conexión · Usando copia local guardada de tarifas
+    </div>
+
     <!-- BÚSQUEDA, SALIDA Y DESTINOS -->
     <section class="card" id="searchCard">
       <!-- Punto de salida -->
@@ -760,22 +1055,7 @@
         </div>
       </div>
 
-      <!-- Tasa USD -> RD$ siempre visible y persistente -->
-      <div class="rate-bar">
-        <label class="rate-bar-label" for="exchangeRateInput">Tasa RD$ (1 US$):</label>
-        <div class="rate-input-wrap">
-          <input
-            type="text"
-            inputmode="decimal"
-            id="exchangeRateInput"
-            placeholder="Ej. 60.50"
-            autocomplete="off"
-          />
-          <button type="button" class="clear-search hidden" id="clearRateBtn" aria-label="Limpiar tasa">✕</button>
-        </div>
-      </div>
-
-      <!-- Panel desplegable para cambiar salida -->
+      <!-- Panel desplegable limpio para cambiar salida -->
       <div class="hidden" id="originSelectorBox" style="margin-bottom: 12px;">
         <div class="search-wrap">
           <input
@@ -787,24 +1067,14 @@
           <button type="button" class="clear-search hidden" id="clearOriginSearchBtn" aria-label="Limpiar salida">✕</button>
           <div class="suggestions hidden" id="originSuggestionsList"></div>
         </div>
-
-        <select id="originSelect" style="margin-top: 8px;">
-          <option value="DEFAULT">Santo Domingo / Hotel (Salida habitual)</option>
-          <option value="Aeropuerto Internacional de Las Américas (AILA / SDQ)">Aeropuerto Las Américas (AILA / SDQ)</option>
-          <option value="Aeropuerto Internacional La Isabela / El Higüero (JBQ)">Aeropuerto La Isabela / El Higüero (JBQ)</option>
-          <option value="Playa de Boca Chica">Boca Chica</option>
-          <option value="Juan Dolio">Juan Dolio</option>
-          <option value="San Pedro de Macorís">San Pedro de Macorís</option>
-          <option value="La Romana">La Romana / Casa de Campo</option>
-          <option value="Bayahíbe">Bayahíbe</option>
-          <option value="Punta Cana">Punta Cana / Bávaro</option>
-          <option value="Las Terrenas (Samaná)">Samaná / Las Terrenas</option>
-          <option value="Jarabacoa (La Vega)">Jarabacoa / Constanza</option>
-          <option value="Santiago de los Caballeros (Santiago)">Santiago de los Caballeros</option>
-          <option value="San Felipe de Puerto Plata (Puerto Plata)">Puerto Plata / Sosúa / Cabarete</option>
-          <option value="Baní (Peravia)">Baní</option>
-          <option value="Santa Cruz de Barahona (Barahona)">Barahona</option>
-        </select>
+        <div class="quick-origins" id="quickOriginsBox">
+          <button type="button" class="quick-chip" data-quick-origin="DEFAULT">Hotel (SDQ)</button>
+          <button type="button" class="quick-chip" data-quick-origin="AILA">AILA (SDQ)</button>
+          <button type="button" class="quick-chip" data-quick-origin="La Isabela">El Higüero (JBQ)</button>
+          <button type="button" class="quick-chip" data-quick-origin="Boca Chica">Boca Chica</button>
+          <button type="button" class="quick-chip" data-quick-origin="Juan Dolio">Juan Dolio</button>
+          <button type="button" class="quick-chip" data-quick-origin="Punta Cana">Punta Cana</button>
+        </div>
       </div>
 
       <!-- Buscador rápido de destino -->
@@ -820,7 +1090,19 @@
         <div class="suggestions hidden" id="suggestionsList"></div>
       </div>
 
-      <button type="button" class="link-btn" id="toggleZoneBtn">O elegir de la lista por zona</button>
+      <div class="search-links-row">
+        <button type="button" class="link-btn" id="toggleZoneBtn">O elegir de la lista por zona</button>
+        <button type="button" class="link-btn hidden" id="toggleHistoryBtn">🕒 Recientes (0)</button>
+      </div>
+
+      <!-- Historial de últimas 5 cotizaciones -->
+      <div class="history-panel hidden" id="historyPanel">
+        <div class="history-header">
+          <span>Últimas cotizaciones</span>
+          <button type="button" class="clear-btn" id="clearHistoryBtn">Borrar historial</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
 
       <div id="zoneSelectors" class="hidden">
         <div class="field-group">
@@ -851,33 +1133,81 @@
       </div>
     </section>
 
-    <!-- RESULTADOS: LOS 3 PRECIOS CLAROS + BOTÓN COPIAR -->
+    <!-- RESULTADOS: LOS 3 PRECIOS CLAROS + EDICIÓN + TASA RD$ + ES/EN + COPIAR -->
     <section class="card results-card hidden" id="resultsCard">
       <div class="route-banner">
-        <div class="route-mode-pill" id="routeModeBadge">Solo ida</div>
+        <div class="route-banner-top">
+          <span class="route-mode-pill" id="routeModeBadge">Solo ida</span>
+          <button type="button" class="edit-prices-btn" id="toggleEditPricesBtn">✏️ Ajustar precios</button>
+        </div>
         <div class="route-chain" id="routeChainText"></div>
       </div>
 
       <div class="prices-grid">
-        <div class="price-box" data-copy-tier="Normal" title="Clic para copiar tarifa Normal">
+        <div class="price-box" id="boxNormal" data-copy-tier="Normal" title="Clic para copiar tarifa Normal">
           <div class="price-tier">Normal</div>
           <div class="price-value" id="priceNormal">US$ 0</div>
           <div class="price-dop hidden" id="dopNormal">RD$ 0</div>
           <div class="price-sub" id="subNormal">Tocar para copiar</div>
         </div>
 
-        <div class="price-box" data-copy-tier="Minivan" title="Clic para copiar tarifa Minivan">
+        <div class="price-box" id="boxMinivan" data-copy-tier="Minivan" title="Clic para copiar tarifa Minivan">
           <div class="price-tier">Minivan</div>
           <div class="price-value" id="priceMinivan">US$ 0</div>
           <div class="price-dop hidden" id="dopMinivan">RD$ 0</div>
           <div class="price-sub" id="subMinivan">Tocar para copiar</div>
         </div>
 
-        <div class="price-box luxury" data-copy-tier="Luxury" title="Clic para copiar tarifa Luxury">
+        <div class="price-box luxury" id="boxLuxury" data-copy-tier="Luxury" title="Clic para copiar tarifa Luxury">
           <div class="price-tier">★ Luxury</div>
           <div class="price-value" id="priceLuxury">US$ 0</div>
           <div class="price-dop hidden" id="dopLuxury">RD$ 0</div>
           <div class="price-sub" id="subLuxury">Tocar para copiar</div>
+        </div>
+      </div>
+
+      <!-- Edición rápida de tarifas manuales -->
+      <div class="manual-edit-box hidden" id="manualEditBox">
+        <div class="manual-edit-header">
+          <span>Ajuste manual (US$)</span>
+          <button type="button" class="clear-btn" id="resetManualPricesBtn">Restaurar oficial</button>
+        </div>
+        <div class="manual-edit-grid">
+          <div class="manual-field">
+            <label for="editNormalInput">Normal</label>
+            <input type="text" inputmode="decimal" id="editNormalInput" />
+          </div>
+          <div class="manual-field">
+            <label for="editMinivanInput">Minivan</label>
+            <input type="text" inputmode="decimal" id="editMinivanInput" />
+          </div>
+          <div class="manual-field">
+            <label for="editLuxuryInput">Luxury</label>
+            <input type="text" inputmode="decimal" id="editLuxuryInput" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasa USD -> RD$ guardada automáticamente en caché (localStorage) -->
+      <div class="exchange-section">
+        <div class="exchange-row">
+          <div class="exchange-label-group">
+            <label class="exchange-label" for="exchangeRateInput">Tasa RD$ (1 US$)</label>
+            <span class="exchange-meta" id="rateSavedMeta">Se guarda automáticamente</span>
+          </div>
+          <div class="exchange-input-wrap">
+            <button type="button" class="clear-rate-left hidden" id="clearRateBtn" aria-label="Borrar tasa">✕</button>
+            <input
+              type="text"
+              inputmode="decimal"
+              id="exchangeRateInput"
+              placeholder="Ej. 60.50"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+        <div class="rate-stale-warning hidden" id="rateStaleWarning">
+          ⏳ Esta tasa tiene más de 24 horas guardada. Verifica si cambió hoy.
         </div>
       </div>
 
@@ -892,6 +1222,15 @@
         </div>
       </div>
 
+      <!-- Barra de idioma del mensaje (ES / EN) + vista previa + botón copiar -->
+      <div class="copy-toolbar">
+        <span class="copy-toolbar-label">Mensaje para WhatsApp</span>
+        <div class="lang-toggle" id="langToggle">
+          <button type="button" class="lang-btn active" data-lang="es">ES · Español</button>
+          <button type="button" class="lang-btn" data-lang="en">EN · English</button>
+        </div>
+      </div>
+
       <div class="copy-preview" id="copyPreviewText"></div>
 
       <button type="button" class="btn-copy-main" id="copyQuoteBtn">Copiar tarifas</button>
@@ -903,12 +1242,22 @@
   </div>
 
   <script>
-    // Los destinos y tarifas se cargan dinámicamente desde tarifas.js sin caché
     let INDEXED_DESTINATIONS = [];
 
     // =========================================================================
-    // NORMALIZACIÓN DE BÚSQUEDA Y FORMATEO
+    // SANITIZACIÓN HTML Y NORMALIZACIÓN DE BÚSQUEDA
     // =========================================================================
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return str
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
     function normalizeText(str) {
       if (!str) return "";
       return str
@@ -930,11 +1279,17 @@
       return `RD$ ${dop.toLocaleString("en-US")}`;
     }
 
-    function parseExchangeRate(rawValue) {
-      if (!rawValue) return null;
+    function parsePositiveFloat(rawValue) {
+      if (rawValue === null || rawValue === undefined) return null;
       const cleaned = rawValue.toString().trim().replace(",", ".");
+      if (!cleaned) return null;
       const parsed = parseFloat(cleaned);
-      return !isNaN(parsed) && parsed > 0 ? parsed : null;
+      return !isNaN(parsed) && parsed >= 0 ? parsed : null;
+    }
+
+    function parseExchangeRate(rawValue) {
+      const parsed = parsePositiveFloat(rawValue);
+      return parsed !== null && parsed > 0 ? parsed : null;
     }
 
     async function copyToClipboard(text) {
@@ -959,9 +1314,37 @@
     }
 
     // =========================================================================
-    // ESTADO DE LA APLICACIÓN
+    // PERSISTENCIA EN CACHÉ (LOCALSTORAGE): TASA, IDIOMA, HISTORIAL Y RESPALDO OFFLINE
     // =========================================================================
-    const savedRateRaw = localStorage.getItem("asotatur_exchange_rate") || "";
+    const RATE_STORAGE_KEY = "asotatur_exchange_rate";
+    const RATE_TS_STORAGE_KEY = "asotatur_exchange_rate_ts";
+    const LANG_STORAGE_KEY = "asotatur_copy_lang";
+    const HISTORY_STORAGE_KEY = "asotatur_quote_history";
+    const DESTINATIONS_BACKUP_KEY = "asotatur_destinations_backup_v1";
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+    const MAX_HISTORY_ITEMS = 5;
+
+    const savedRateRaw = localStorage.getItem(RATE_STORAGE_KEY) || "";
+    const savedRateTs = Number(localStorage.getItem(RATE_TS_STORAGE_KEY) || 0);
+    const savedLang = localStorage.getItem(LANG_STORAGE_KEY) || "es";
+
+    function loadQuoteHistory() {
+      try {
+        const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveQuoteHistory(list) {
+      try {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, MAX_HISTORY_ITEMS)));
+      } catch (e) {}
+    }
+
+    let quoteHistory = loadQuoteHistory();
 
     let state = {
       origin: "Santo Domingo / Hotel",
@@ -969,10 +1352,15 @@
       stops: [],
       roundTrip: false,
       paymentMethod: "cash",
-      exchangeRate: parseExchangeRate(savedRateRaw)
+      copyLang: savedLang === "en" ? "en" : "es",
+      exchangeRate: parseExchangeRate(savedRateRaw),
+      exchangeRateTs: savedRateTs || null,
+      customPrices: { Normal: null, Minivan: null, Luxury: null },
+      isEditingPrices: false
     };
 
     // Referencias DOM
+    const offlineBanner = document.getElementById("offlineBanner");
     const originText = document.getElementById("originText");
     const resetOriginBtn = document.getElementById("resetOriginBtn");
     const toggleOriginBtn = document.getElementById("toggleOriginBtn");
@@ -980,15 +1368,21 @@
     const originSearchInput = document.getElementById("originSearchInput");
     const clearOriginSearchBtn = document.getElementById("clearOriginSearchBtn");
     const originSuggestionsList = document.getElementById("originSuggestionsList");
-    const originSelect = document.getElementById("originSelect");
+    const quickOriginsBox = document.getElementById("quickOriginsBox");
 
     const exchangeRateInput = document.getElementById("exchangeRateInput");
     const clearRateBtn = document.getElementById("clearRateBtn");
+    const rateSavedMeta = document.getElementById("rateSavedMeta");
+    const rateStaleWarning = document.getElementById("rateStaleWarning");
 
     const searchInput = document.getElementById("searchInput");
     const clearSearchBtn = document.getElementById("clearSearchBtn");
     const suggestionsList = document.getElementById("suggestionsList");
     const toggleZoneBtn = document.getElementById("toggleZoneBtn");
+    const toggleHistoryBtn = document.getElementById("toggleHistoryBtn");
+    const historyPanel = document.getElementById("historyPanel");
+    const historyList = document.getElementById("historyList");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
     const zoneSelectors = document.getElementById("zoneSelectors");
     const zoneSelect = document.getElementById("zoneSelect");
     const sectorSelect = document.getElementById("sectorSelect");
@@ -1003,23 +1397,66 @@
     const resultsCard = document.getElementById("resultsCard");
     const routeModeBadge = document.getElementById("routeModeBadge");
     const routeChainText = document.getElementById("routeChainText");
+    const toggleEditPricesBtn = document.getElementById("toggleEditPricesBtn");
+    const manualEditBox = document.getElementById("manualEditBox");
+    const resetManualPricesBtn = document.getElementById("resetManualPricesBtn");
+    const editNormalInput = document.getElementById("editNormalInput");
+    const editMinivanInput = document.getElementById("editMinivanInput");
+    const editLuxuryInput = document.getElementById("editLuxuryInput");
+
+    const boxNormal = document.getElementById("boxNormal");
+    const boxMinivan = document.getElementById("boxMinivan");
+    const boxLuxury = document.getElementById("boxLuxury");
     const priceNormal = document.getElementById("priceNormal");
     const priceMinivan = document.getElementById("priceMinivan");
     const priceLuxury = document.getElementById("priceLuxury");
     const dopNormal = document.getElementById("dopNormal");
     const dopMinivan = document.getElementById("dopMinivan");
     const dopLuxury = document.getElementById("dopLuxury");
+
     const themeToggleBtn = document.getElementById("themeToggleBtn");
     const paymentGrid = document.getElementById("paymentGrid");
     const cardWarningBox = document.getElementById("cardWarningBox");
+    const langToggle = document.getElementById("langToggle");
     const copyPreviewText = document.getElementById("copyPreviewText");
     const copyQuoteBtn = document.getElementById("copyQuoteBtn");
 
-    // Restaurar tasa guardada al abrir la página
+    function clearCustomPrices() {
+      state.customPrices = { Normal: null, Minivan: null, Luxury: null };
+    }
+
+    function hasAnyCustomPrice() {
+      return state.customPrices.Normal !== null ||
+             state.customPrices.Minivan !== null ||
+             state.customPrices.Luxury !== null;
+    }
+
+    function updateRateStatusUI() {
+      if (!state.exchangeRate) {
+        rateSavedMeta.textContent = "Se guarda automáticamente";
+        rateStaleWarning.classList.add("hidden");
+        return;
+      }
+
+      if (state.exchangeRateTs) {
+        const d = new Date(state.exchangeRateTs);
+        const timeStr = d.toLocaleTimeString("es-DO", { hour: "2-digit", minute: "2-digit" });
+        const dateStr = d.toLocaleDateString("es-DO", { day: "2-digit", month: "2-digit" });
+        rateSavedMeta.textContent = `Guardada: ${dateStr} · ${timeStr}`;
+
+        const isStale = (Date.now() - state.exchangeRateTs) > TWENTY_FOUR_HOURS_MS;
+        rateStaleWarning.classList.toggle("hidden", !isStale);
+      } else {
+        rateSavedMeta.textContent = "Guardada en este dispositivo";
+        rateStaleWarning.classList.add("hidden");
+      }
+    }
+
     if (savedRateRaw) {
       exchangeRateInput.value = savedRateRaw;
       clearRateBtn.classList.remove("hidden");
     }
+    updateRateStatusUI();
 
     // =========================================================================
     // MOTOR DE CÁLCULO SIMÉTRICO Y ESTIMACIÓN POR DISTANCIA
@@ -1123,12 +1560,12 @@
     }
 
     function setCustomOrigin(destObj) {
+      clearCustomPrices();
       if (!destObj) {
         state.origin = "Santo Domingo / Hotel";
         state.originObj = null;
         originText.textContent = state.origin;
         resetOriginBtn.classList.add("hidden");
-        originSelect.value = "DEFAULT";
       } else {
         state.origin = destObj.name;
         state.originObj = destObj;
@@ -1136,6 +1573,7 @@
         resetOriginBtn.classList.remove("hidden");
       }
       originSearchInput.value = "";
+      originSearchInput.blur();
       clearOriginSearchBtn.classList.add("hidden");
       originSuggestionsList.classList.add("hidden");
       originSelectorBox.classList.add("hidden");
@@ -1143,6 +1581,7 @@
     }
 
     function initZones() {
+      zoneSelect.innerHTML = '<option value="">Selecciona una zona...</option>';
       const zones = [...new Set(INDEXED_DESTINATIONS.filter(d => !d.disabled).map(d => d.zone))];
       zones.forEach(z => {
         const opt = document.createElement("option");
@@ -1158,7 +1597,7 @@
       return lastStop.roundTripEligible !== false;
     }
 
-    function calculateTotalForVehicle(vehicle) {
+    function calculateOfficialForVehicle(vehicle) {
       let stopsSubtotal = 0;
 
       if (state.originObj) {
@@ -1202,18 +1641,48 @@
       return stopsSubtotal + returnCost;
     }
 
-    function buildCopyMessage(totals) {
-      const routePoints = [state.origin, ...state.stops.map(s => s.name)];
-      if (state.roundTrip) {
-        routePoints.push(state.origin);
+    function getEffectivePrice(vehicle) {
+      if (state.customPrices[vehicle] !== null) {
+        return state.customPrices[vehicle];
       }
-      const modeLabel = state.roundTrip ? "Ida y vuelta" : "Solo ida";
-      const rate = state.exchangeRate;
+      return calculateOfficialForVehicle(vehicle);
+    }
 
+    function buildCopyMessage(totals) {
+      const isEn = state.copyLang === "en";
+      const displayOrigin = isEn && state.origin === "Santo Domingo / Hotel"
+        ? "Santo Domingo / Hotel"
+        : state.origin;
+
+      const routePoints = [displayOrigin, ...state.stops.map(s => s.name)];
+      if (state.roundTrip) {
+        routePoints.push(displayOrigin);
+      }
+
+      const modeLabel = isEn
+        ? (state.roundTrip ? "Round trip" : "One way")
+        : (state.roundTrip ? "Ida y vuelta" : "Solo ida");
+
+      const rate = state.exchangeRate;
       const formatTierLine = (label, usdVal) => {
         const dopPart = rate ? ` (${formatDOP(usdVal, rate)})` : "";
         return `• ${label}: ${formatMoney(usdVal)}${dopPart}`;
       };
+
+      if (isEn) {
+        const lines = [
+          `ASOTATUR · Transportation Rates (${modeLabel})`,
+          `Route: ${routePoints.join(" → ")}`,
+          ``,
+          formatTierLine("Standard", totals.Normal),
+          formatTierLine("Minivan", totals.Minivan),
+          formatTierLine("Luxury", totals.Luxury)
+        ];
+        if (state.paymentMethod === "card") {
+          lines.push(``, `Note: Card payments carry an additional 4% to 7% processing fee depending on the POS/platform (CardNET, AZUL, Billet, MIO, etc.).`);
+        }
+        return lines.join("\n");
+      }
 
       const lines = [
         `ASOTATUR · Tarifas de Transporte (${modeLabel})`,
@@ -1229,6 +1698,118 @@
       return lines.join("\n");
     }
 
+    // =========================================================================
+    // HISTORIAL DE ÚLTIMAS 5 COTIZACIONES (SANITIZADO)
+    // =========================================================================
+    function recordCurrentQuoteToHistory() {
+      if (state.stops.length === 0) return;
+
+      const totals = {
+        Normal: getEffectivePrice("Normal"),
+        Minivan: getEffectivePrice("Minivan"),
+        Luxury: getEffectivePrice("Luxury")
+      };
+
+      const routePoints = [state.origin, ...state.stops.map(s => s.name)];
+      if (state.roundTrip) routePoints.push(state.origin);
+      const routeLabel = routePoints.join(" → ");
+
+      const entry = {
+        id: `${routeLabel}|${state.roundTrip ? "rt" : "ow"}|${totals.Normal}|${totals.Minivan}|${totals.Luxury}`,
+        routeLabel,
+        originName: state.origin,
+        originDestName: state.originObj ? state.originObj.name : null,
+        stopNames: state.stops.map(s => s.name),
+        roundTrip: state.roundTrip,
+        paymentMethod: state.paymentMethod,
+        customPrices: { ...state.customPrices },
+        totals,
+        ts: Date.now()
+      };
+
+      quoteHistory = [entry, ...quoteHistory.filter(item => item.id !== entry.id)].slice(0, MAX_HISTORY_ITEMS);
+      saveQuoteHistory(quoteHistory);
+      renderHistoryUI();
+    }
+
+    function renderHistoryUI() {
+      const count = quoteHistory.length;
+      if (count === 0) {
+        toggleHistoryBtn.classList.add("hidden");
+        historyPanel.classList.add("hidden");
+        return;
+      }
+
+      toggleHistoryBtn.classList.remove("hidden");
+      toggleHistoryBtn.textContent = `🕒 Recientes (${count})`;
+
+      historyList.innerHTML = "";
+      quoteHistory.forEach((item, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "history-item";
+        const modeTxt = item.roundTrip ? "Ida y vuelta" : "Solo ida";
+        const timeTxt = new Date(item.ts).toLocaleTimeString("es-DO", { hour: "2-digit", minute: "2-digit" });
+        btn.innerHTML = `
+          <div style="min-width:0;">
+            <div class="history-route">${escapeHtml(item.routeLabel)}</div>
+            <div class="history-meta">${escapeHtml(modeTxt)} · ${escapeHtml(timeTxt)}</div>
+          </div>
+          <div class="history-price">${escapeHtml(formatMoney(item.totals.Normal))}</div>
+        `;
+        btn.addEventListener("click", () => restoreQuoteFromHistory(idx));
+        historyList.appendChild(btn);
+      });
+    }
+
+    function restoreQuoteFromHistory(index) {
+      const item = quoteHistory[index];
+      if (!item) return;
+
+      if (item.originDestName) {
+        const foundOrigin = INDEXED_DESTINATIONS.find(d => d.name === item.originDestName);
+        if (foundOrigin) {
+          state.origin = foundOrigin.name;
+          state.originObj = foundOrigin;
+          originText.textContent = state.origin;
+          resetOriginBtn.classList.remove("hidden");
+        } else {
+          state.origin = "Santo Domingo / Hotel";
+          state.originObj = null;
+          originText.textContent = state.origin;
+          resetOriginBtn.classList.add("hidden");
+        }
+      } else {
+        state.origin = "Santo Domingo / Hotel";
+        state.originObj = null;
+        originText.textContent = state.origin;
+        resetOriginBtn.classList.add("hidden");
+      }
+
+      const restoredStops = item.stopNames
+        .map(name => INDEXED_DESTINATIONS.find(d => d.name === name))
+        .filter(Boolean);
+
+      if (restoredStops.length === 0) return;
+
+      state.stops = restoredStops;
+      state.roundTrip = !!item.roundTrip;
+      state.paymentMethod = item.paymentMethod === "card" ? "card" : "cash";
+      state.customPrices = item.customPrices
+        ? {
+            Normal: item.customPrices.Normal ?? null,
+            Minivan: item.customPrices.Minivan ?? null,
+            Luxury: item.customPrices.Luxury ?? null
+          }
+        : { Normal: null, Minivan: null, Luxury: null };
+
+      historyPanel.classList.add("hidden");
+      render();
+    }
+
+    // =========================================================================
+    // RENDERIZADO PRINCIPAL
+    // =========================================================================
     function render() {
       const allowed = isRoundTripAllowed();
       if (!allowed && state.roundTrip) {
@@ -1237,6 +1818,8 @@
 
       if (state.stops.length === 0) {
         state.roundTrip = false;
+        state.isEditingPrices = false;
+        clearCustomPrices();
         routeControls.classList.add("hidden");
         resultsCard.classList.add("hidden");
         return;
@@ -1245,7 +1828,7 @@
       routeControls.classList.remove("hidden");
       resultsCard.classList.remove("hidden");
 
-      // Renderizar lista de destinos seleccionados
+      // Renderizar lista de destinos seleccionados (sanitizada)
       stopsContainer.innerHTML = "";
       state.stops.forEach((stop, index) => {
         const row = document.createElement("div");
@@ -1253,8 +1836,8 @@
         const refText = stop.ref && stop.ref !== stop.name ? `${stop.zone} · ${stop.ref}` : stop.zone;
         row.innerHTML = `
           <div class="stop-chip-text">
-            <div class="stop-chip-name">${index + 1}. ${stop.name}</div>
-            <div class="stop-chip-ref">${refText}</div>
+            <div class="stop-chip-name">${index + 1}. ${escapeHtml(stop.name)}</div>
+            <div class="stop-chip-ref">${escapeHtml(refText)}</div>
           </div>
           <button type="button" class="remove-stop" data-index="${index}" aria-label="Quitar">✕</button>
         `;
@@ -1268,11 +1851,11 @@
         btn.classList.toggle("active", isRt ? state.roundTrip : !state.roundTrip);
       });
 
-      // Calcular los 3 precios
+      // Calcular los 3 precios (oficial o editado manualmente)
       const totals = {
-        Normal: calculateTotalForVehicle("Normal"),
-        Minivan: calculateTotalForVehicle("Minivan"),
-        Luxury: calculateTotalForVehicle("Luxury")
+        Normal: getEffectivePrice("Normal"),
+        Minivan: getEffectivePrice("Minivan"),
+        Luxury: getEffectivePrice("Luxury")
       };
 
       const routePoints = [state.origin, ...state.stops.map(s => s.name)];
@@ -1287,7 +1870,26 @@
       priceMinivan.textContent = formatMoney(totals.Minivan);
       priceLuxury.textContent = formatMoney(totals.Luxury);
 
-      // Actualizar equivalente en RD$ en tiempo real
+      boxNormal.classList.toggle("edited", state.customPrices.Normal !== null);
+      boxMinivan.classList.toggle("edited", state.customPrices.Minivan !== null);
+      boxLuxury.classList.toggle("edited", state.customPrices.Luxury !== null);
+
+      // Panel de edición manual
+      manualEditBox.classList.toggle("hidden", !state.isEditingPrices);
+      toggleEditPricesBtn.classList.toggle("active", state.isEditingPrices || hasAnyCustomPrice());
+      toggleEditPricesBtn.textContent = hasAnyCustomPrice() ? "✏️ Precios ajustados" : "✏️ Ajustar precios";
+
+      if (document.activeElement !== editNormalInput) {
+        editNormalInput.value = totals.Normal;
+      }
+      if (document.activeElement !== editMinivanInput) {
+        editMinivanInput.value = totals.Minivan;
+      }
+      if (document.activeElement !== editLuxuryInput) {
+        editLuxuryInput.value = totals.Luxury;
+      }
+
+      // Equivalente en RD$ en tiempo real
       const rate = state.exchangeRate;
       if (rate) {
         dopNormal.textContent = formatDOP(totals.Normal, rate);
@@ -1307,18 +1909,27 @@
       });
       cardWarningBox.classList.toggle("hidden", state.paymentMethod !== "card");
 
+      // Estado de idioma ES / EN
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.lang === state.copyLang);
+      });
+      copyQuoteBtn.textContent = state.copyLang === "en" ? "Copy rates (EN)" : "Copiar tarifas";
+
       copyPreviewText.textContent = buildCopyMessage(totals);
     }
 
     function addStop(dest) {
+      clearCustomPrices();
       state.stops.push(dest);
       searchInput.value = "";
+      searchInput.blur();
       clearSearchBtn.classList.add("hidden");
       suggestionsList.classList.add("hidden");
       zoneSelect.value = "";
       sectorSelect.innerHTML = '<option value="">Selecciona primero una zona...</option>';
       sectorSelect.disabled = true;
       render();
+      recordCurrentQuoteToHistory();
     }
 
     // Eventos de Salida
@@ -1331,6 +1942,21 @@
 
     resetOriginBtn.addEventListener("click", () => {
       setCustomOrigin(null);
+    });
+
+    quickOriginsBox.addEventListener("click", (e) => {
+      const chip = e.target.closest(".quick-chip");
+      if (!chip) return;
+      const key = chip.dataset.quickOrigin;
+      if (key === "DEFAULT") {
+        setCustomOrigin(null);
+        return;
+      }
+      const normKey = normalizeText(key);
+      const found = INDEXED_DESTINATIONS.find(
+        d => d.zone !== "Servicios Especiales" && d._normAll.includes(normKey)
+      );
+      if (found) setCustomOrigin(found);
     });
 
     originSearchInput.addEventListener("input", () => {
@@ -1366,13 +1992,12 @@
         item.className = "suggestion-item";
         item.innerHTML = `
           <div>
-            <div class="suggestion-name">${dest.name}</div>
-            <div class="suggestion-zone">${dest.zone}</div>
+            <div class="suggestion-name">${escapeHtml(dest.name)}</div>
+            <div class="suggestion-zone">${escapeHtml(dest.zone)}</div>
           </div>
           <div class="suggestion-prices-mini">Elegir salida</div>
         `;
         item.addEventListener("click", () => {
-          originSelect.value = "DEFAULT";
           setCustomOrigin(dest);
         });
         originSuggestionsList.appendChild(item);
@@ -1387,20 +2012,7 @@
       originSearchInput.focus();
     });
 
-    originSelect.addEventListener("change", () => {
-      const val = originSelect.value;
-      if (val === "DEFAULT") {
-        setCustomOrigin(null);
-        return;
-      }
-      const normVal = normalizeText(val);
-      const found =
-        INDEXED_DESTINATIONS.find(d => d.name === val) ||
-        INDEXED_DESTINATIONS.find(d => d._normName.includes(normVal));
-      setCustomOrigin(found || null);
-    });
-
-    // Eventos de Búsqueda Rápida de Destino
+    // Eventos de Búsqueda Rápida de Destino (sanitizada)
     function renderDestinationSuggestions() {
       const raw = searchInput.value;
       clearSearchBtn.classList.toggle("hidden", raw.length === 0);
@@ -1443,13 +2055,13 @@
         const pL = estimateLegPrice(departurePoint, dest, "Luxury");
 
         const dopMiniHtml = state.exchangeRate
-          ? `<div class="suggestion-dop-mini">Normal: ${formatDOP(pN, state.exchangeRate)}</div>`
+          ? `<div class="suggestion-dop-mini">Normal: ${escapeHtml(formatDOP(pN, state.exchangeRate))}</div>`
           : "";
 
         item.innerHTML = `
           <div>
-            <div class="suggestion-name">${dest.name}</div>
-            <div class="suggestion-zone">${subText}</div>
+            <div class="suggestion-name">${escapeHtml(dest.name)}</div>
+            <div class="suggestion-zone">${escapeHtml(subText)}</div>
           </div>
           <div class="suggestion-prices-mini">
             <div>$${pN} · $${pM} · $${pL}</div>
@@ -1482,6 +2094,16 @@
       zoneSelectors.classList.toggle("hidden");
     });
 
+    toggleHistoryBtn.addEventListener("click", () => {
+      historyPanel.classList.toggle("hidden");
+    });
+
+    clearHistoryBtn.addEventListener("click", () => {
+      quoteHistory = [];
+      saveQuoteHistory([]);
+      renderHistoryUI();
+    });
+
     zoneSelect.addEventListener("change", () => {
       const selectedZone = zoneSelect.value;
       sectorSelect.innerHTML = '<option value="">Selecciona un sector o destino...</option>';
@@ -1508,6 +2130,7 @@
     stopsContainer.addEventListener("click", (e) => {
       const btn = e.target.closest(".remove-stop");
       if (!btn) return;
+      clearCustomPrices();
       state.stops.splice(Number(btn.dataset.index), 1);
       render();
     });
@@ -1515,13 +2138,17 @@
     tripModeGrid.addEventListener("click", (e) => {
       const btn = e.target.closest(".mode-btn");
       if (!btn || btn.disabled) return;
+      clearCustomPrices();
       state.roundTrip = btn.dataset.mode === "roundtrip";
       render();
+      recordCurrentQuoteToHistory();
     });
 
     clearRouteBtn.addEventListener("click", () => {
+      recordCurrentQuoteToHistory();
       state.stops = [];
       state.roundTrip = false;
+      clearCustomPrices();
       render();
       searchInput.focus();
     });
@@ -1530,16 +2157,52 @@
       searchInput.focus();
     });
 
-    // Evento de tasa de cambio en tiempo real con guardado en localStorage
+    // Edición manual de precios
+    toggleEditPricesBtn.addEventListener("click", () => {
+      state.isEditingPrices = !state.isEditingPrices;
+      render();
+      if (state.isEditingPrices) {
+        editNormalInput.focus();
+        editNormalInput.select();
+      }
+    });
+
+    resetManualPricesBtn.addEventListener("click", () => {
+      clearCustomPrices();
+      render();
+    });
+
+    [
+      { el: editNormalInput, tier: "Normal" },
+      { el: editMinivanInput, tier: "Minivan" },
+      { el: editLuxuryInput, tier: "Luxury" }
+    ].forEach(({ el, tier }) => {
+      el.addEventListener("input", () => {
+        const parsed = parsePositiveFloat(el.value);
+        state.customPrices[tier] = parsed;
+        render();
+      });
+    });
+
+    // Evento de tasa de cambio en tiempo real con guardado en caché
     exchangeRateInput.addEventListener("input", () => {
       const raw = exchangeRateInput.value.trim();
       clearRateBtn.classList.toggle("hidden", raw.length === 0);
-      state.exchangeRate = parseExchangeRate(raw);
-      if (raw) {
-        localStorage.setItem("asotatur_exchange_rate", raw);
-      } else {
-        localStorage.removeItem("asotatur_exchange_rate");
+      const parsed = parseExchangeRate(raw);
+      state.exchangeRate = parsed;
+
+      if (raw && parsed) {
+        const now = Date.now();
+        state.exchangeRateTs = now;
+        localStorage.setItem(RATE_STORAGE_KEY, raw);
+        localStorage.setItem(RATE_TS_STORAGE_KEY, String(now));
+      } else if (!raw) {
+        state.exchangeRateTs = null;
+        localStorage.removeItem(RATE_STORAGE_KEY);
+        localStorage.removeItem(RATE_TS_STORAGE_KEY);
       }
+
+      updateRateStatusUI();
       if (!suggestionsList.classList.contains("hidden")) {
         renderDestinationSuggestions();
       }
@@ -1550,7 +2213,10 @@
       exchangeRateInput.value = "";
       clearRateBtn.classList.add("hidden");
       state.exchangeRate = null;
-      localStorage.removeItem("asotatur_exchange_rate");
+      state.exchangeRateTs = null;
+      localStorage.removeItem(RATE_STORAGE_KEY);
+      localStorage.removeItem(RATE_TS_STORAGE_KEY);
+      updateRateStatusUI();
       if (!suggestionsList.classList.contains("hidden")) {
         renderDestinationSuggestions();
       }
@@ -1558,29 +2224,52 @@
       exchangeRateInput.focus();
     });
 
+    // Selector de idioma del mensaje (ES / EN)
+    langToggle.addEventListener("click", (e) => {
+      const btn = e.target.closest(".lang-btn");
+      if (!btn) return;
+      state.copyLang = btn.dataset.lang === "en" ? "en" : "es";
+      localStorage.setItem(LANG_STORAGE_KEY, state.copyLang);
+      render();
+    });
+
     // Copiar las 3 tarifas (botón principal)
     copyQuoteBtn.addEventListener("click", async () => {
+      recordCurrentQuoteToHistory();
       await copyToClipboard(copyPreviewText.textContent);
-      const orig = copyQuoteBtn.textContent;
-      copyQuoteBtn.textContent = "¡Tarifas copiadas!";
-      setTimeout(() => (copyQuoteBtn.textContent = orig), 1800);
+      copyQuoteBtn.textContent = state.copyLang === "en" ? "Rates copied!" : "¡Tarifas copiadas!";
+      setTimeout(() => {
+        copyQuoteBtn.textContent = state.copyLang === "en" ? "Copy rates (EN)" : "Copiar tarifas";
+      }, 1800);
     });
 
     // Copiar tarifa individual al tocar cualquiera de las 3 tarjetas
     document.querySelectorAll(".price-box").forEach(box => {
       box.addEventListener("click", async () => {
+        recordCurrentQuoteToHistory();
         const tier = box.dataset.copyTier;
-        const val = calculateTotalForVehicle(tier);
+        const val = getEffectivePrice(tier);
+        const isEn = state.copyLang === "en";
         const routePoints = [state.origin, ...state.stops.map(s => s.name)];
         if (state.roundTrip) routePoints.push(state.origin);
-        const modeLabel = state.roundTrip ? "Ida y vuelta" : "Solo ida";
+
         const dopPart = state.exchangeRate ? ` (${formatDOP(val, state.exchangeRate)})` : "";
-        const cardNote = state.paymentMethod === "card" ? " (+4 % a 7 % por pago con tarjeta)" : "";
-        const singleText = `${tier} (${modeLabel}): ${formatMoney(val)}${dopPart}${cardNote} · ${routePoints.join(" → ")}`;
+        let singleText = "";
+
+        if (isEn) {
+          const tierEn = tier === "Normal" ? "Standard" : tier;
+          const modeEn = state.roundTrip ? "Round trip" : "One way";
+          const cardEn = state.paymentMethod === "card" ? " (+4% to 7% card fee)" : "";
+          singleText = `${tierEn} (${modeEn}): ${formatMoney(val)}${dopPart}${cardEn} · ${routePoints.join(" → ")}`;
+        } else {
+          const modeEs = state.roundTrip ? "Ida y vuelta" : "Solo ida";
+          const cardEs = state.paymentMethod === "card" ? " (+4 % a 7 % por pago con tarjeta)" : "";
+          singleText = `${tier} (${modeEs}): ${formatMoney(val)}${dopPart}${cardEs} · ${routePoints.join(" → ")}`;
+        }
 
         await copyToClipboard(singleText);
         const subEl = document.getElementById(`sub${tier}`);
-        subEl.textContent = "¡Copiado!";
+        subEl.textContent = isEn ? "Copied!" : "¡Copiado!";
         setTimeout(() => (subEl.textContent = "Tocar para copiar"), 1500);
       });
     });
@@ -1609,25 +2298,61 @@
       applyTheme(nextTheme);
     });
 
-    const tarifasScript = document.createElement("script");
-    tarifasScript.src = `tarifas.js?v=${Date.now()}`;
-    tarifasScript.onload = () => {
-      if (typeof DESTINATIONS === "undefined" || !Array.isArray(DESTINATIONS)) {
-        alert("Error: tarifas.js no contiene el listado válido de destinos.");
-        return;
-      }
-      INDEXED_DESTINATIONS = DESTINATIONS.map((d, idx) => ({
+    // =========================================================================
+    // CARGA DE DESTINOS CON RESPALDO OFFLINE EN LOCALSTORAGE Y SERVICE WORKER
+    // =========================================================================
+    function hydrateDestinations(rawList, isOfflineFallback) {
+      INDEXED_DESTINATIONS = rawList.map((d, idx) => ({
         ...d,
         _id: idx,
         _normName: normalizeText(d.name),
         _normAll: normalizeText(`${d.name} ${d.zone} ${d.ref || ""}`)
       }));
+      offlineBanner.classList.toggle("hidden", !isOfflineFallback);
       initZones();
+      renderHistoryUI();
+    }
+
+    const tarifasScript = document.createElement("script");
+    tarifasScript.src = `tarifas.js?v=${Date.now()}`;
+    tarifasScript.onload = () => {
+      if (typeof DESTINATIONS === "undefined" || !Array.isArray(DESTINATIONS)) {
+        tryOfflineBackup(true);
+        return;
+      }
+      try {
+        localStorage.setItem(DESTINATIONS_BACKUP_KEY, JSON.stringify(DESTINATIONS));
+      } catch (e) {}
+      hydrateDestinations(DESTINATIONS, false);
     };
     tarifasScript.onerror = () => {
-      alert("Error al cargar tarifas.js. Verifica la conexión o el archivo en el servidor.");
+      tryOfflineBackup(false);
     };
+
+    function tryOfflineBackup(invalidFormat) {
+      try {
+        const cached = localStorage.getItem(DESTINATIONS_BACKUP_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            hydrateDestinations(parsed, true);
+            return;
+          }
+        }
+      } catch (e) {}
+      alert(invalidFormat
+        ? "Error: tarifas.js no contiene el listado válido de destinos."
+        : "Error al cargar tarifas.js. Verifica la conexión o el archivo en GitHub Pages.");
+    }
+
     document.body.appendChild(tarifasScript);
+
+    // Registro del Service Worker compatible con rutas de GitHub Pages (./sw.js)
+    if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
